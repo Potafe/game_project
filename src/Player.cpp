@@ -9,6 +9,8 @@ Player::Player()
     , m_jumpHeight(300.0f)
     , m_onGround(false)
     , m_world(nullptr)
+    , m_animationTime(0.0f)
+    , m_animationSpeed(2.0f)
 {
 
 }
@@ -17,6 +19,12 @@ void Player::Update(float deltaTime) {
     const float gravity = 800.0f;
     if (!m_onGround) {
         m_velocity.y += gravity * deltaTime;
+    }
+
+    if (abs(m_velocity.x) > 10.0f) {
+        m_animationTime += deltaTime * m_animationSpeed;
+    } else {
+        m_animationTime = 0.0f;
     }
 
     m_position.x += m_velocity.x * deltaTime;

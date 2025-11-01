@@ -14,7 +14,7 @@ public:
     void Present();
 
     void DrawPlatforms(const World* world);
-    void DrawStickFigure(const Vector2 &position);
+    void DrawStickFigure(const Vector2 &position, float animationPhase);
     void SetCamera(const Vector2& position);
 
 private:

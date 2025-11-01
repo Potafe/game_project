@@ -62,7 +62,7 @@ void Renderer::DrawPlatforms(const World *world) {
     }
 }
 
-void Renderer::DrawStickFigure(const Vector2 &position) {
+void Renderer::DrawStickFigure(const Vector2 &position, float animationPhase) {
     Vector2 screenPosition = WorldToScreen(position);
 
     // Debug output
@@ -70,9 +70,16 @@ void Renderer::DrawStickFigure(const Vector2 &position) {
     //          << screenPosition.x << ", " << screenPosition.y << ")" << std::endl;
 
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+
+    float legSwing = sin(animationPhase * 2 * M_PI) * 5.0f;
+    float armSwing = -legSwing;
     
     // Legs (from feet up)
-    DrawLine(screenPosition, Vector2(screenPosition.x, screenPosition.y - 20));
+    float legOffset = 5.0f;
+    DrawLine(Vector2(screenPosition.x - legOffset + legSwing, screenPosition.y - 20), 
+            Vector2(screenPosition.x - legOffset, screenPosition.y));
+    DrawLine(Vector2(screenPosition.x + legOffset - legSwing, screenPosition.y - 20), 
+            Vector2(screenPosition.x + legOffset, screenPosition.y));
 
     // Body (from hips up)
     DrawLine(Vector2(screenPosition.x, screenPosition.y - 20), Vector2(screenPosition.x, screenPosition.y - 60));
@@ -80,12 +87,12 @@ void Renderer::DrawStickFigure(const Vector2 &position) {
     // Head (above body)
     DrawCircle(Vector2(screenPosition.x, screenPosition.y - 70), 10);
 
-    // Arms (at shoulder level)
-    DrawLine(Vector2(screenPosition.x - 15, screenPosition.y - 40),
-             Vector2(screenPosition.x + 15, screenPosition.y - 40));
+    // Arms (animated swing)
+    DrawLine(Vector2(screenPosition.x - 15 + armSwing, screenPosition.y - 40),
+             Vector2(screenPosition.x + 15 - armSwing, screenPosition.y - 40));
+}
 
-    // No separate leg lines since the body line serves as the legs
-}void Renderer::DrawLine(const Vector2& start, const Vector2& end) {
+void Renderer::DrawLine(const Vector2& start, const Vector2& end) {
     SDL_RenderDrawLine(m_renderer, 
                           static_cast<int>(start.x), static_cast<int>(start.y),
                           static_cast<int>(end.x), static_cast<int>(end.y));

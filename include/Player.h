@@ -13,6 +13,11 @@ public:
     Vector2 GetPosition() const { return m_position; }
     void SetPosition(const Vector2 &position) { m_position = position; }
 
+    float GetAnimationPhase() const { return m_animationTime; }
+
+    float m_animationTime;
+    float m_animationSpeed;
+
 private:
     Vector2 m_position;
     Vector2 m_velocity;

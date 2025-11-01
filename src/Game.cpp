@@ -100,7 +100,7 @@ void Game::Render() {
 
     m_renderer->DrawPlatforms(m_world.get());
 
-    m_renderer->DrawStickFigure(m_player->GetPosition());
+    m_renderer->DrawStickFigure(m_player->GetPosition(), m_player->GetAnimationPhase());
 
     m_renderer->Present();
 }
