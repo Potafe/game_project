@@ -1,6 +1,7 @@
 #pragma once
 #include "Vector2.h"
 #include "World.h"
+#include "player/StickFigureBody.h"
 
 class Player {
 public:
@@ -14,9 +15,10 @@ public:
     void SetPosition(const Vector2 &position) { m_position = position; }
 
     float GetAnimationPhase() const { return m_animationTime; }
+    bool IsFacingRight() const { return m_facingRight; }
+    bool IsMoving() const { return abs(m_velocity.x) > 10.0f; }
 
-    float m_animationTime;
-    float m_animationSpeed;
+    const StickFigureBody& GetBody() const { return m_body; }
 
 private:
     Vector2 m_position;
@@ -25,4 +27,9 @@ private:
     float m_jumpHeight;
     bool m_onGround;
     World* m_world;
+    bool m_facingRight;
+
+    float m_animationTime;
+    float m_animationSpeed;
+    StickFigureBody m_body;
 };
