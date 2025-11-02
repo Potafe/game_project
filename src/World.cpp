@@ -16,24 +16,33 @@ void World::Update(float deltaTime) {
 
 void World::Generate() {
     m_platforms.clear();
+    m_terrainPoints.clear();
     
-    for (int x = -m_worldWidth; x < m_worldWidth; x += 100) {
-        m_platforms.push_back(Vector2(static_cast<float>(x), 400.0f));
-    }
-
+    // Generate rugged terrain line
+    float baseGroundHeight = 400.0f;
+    int terrainStep = 20; // Distance between terrain points
+    
     random_device rd;
     mt19937 gen(rd());
-    uniform_real_distribution<float> xDist(-static_cast<float>(m_worldWidth), static_cast<float>(m_worldWidth));
-    uniform_real_distribution<float> yDist(200.0f, 350.0f);
-
-    for (int i = 0; i < 20; i++) {
-        float x = xDist(gen);
-        float y = yDist(gen);
-        m_platforms.push_back(Vector2(x, y));
+    uniform_real_distribution<float> heightVariation(-15.0f, 15.0f);
+    
+    // Generate terrain points across the world width
+    for (int x = -m_worldWidth; x <= m_worldWidth; x += terrainStep) {
+        float terrainHeight = baseGroundHeight + heightVariation(gen);
+        m_terrainPoints.push_back(Vector2(static_cast<float>(x), terrainHeight));
     }
+    
+    // No floating platforms - just the terrain line
 }
 
 bool World::IsColliding(const Vector2 &position, float radius) {
+    // Check collision with terrain line
+    float groundHeight = GetGroundHeight(position.x);
+    if (position.y + radius >= groundHeight) {
+        return true;
+    }
+    
+    // Check collision with platforms
     for (const auto &platform: m_platforms) {
         float platformWidth = 80.0f;
         float platformHeight = 20.0f;
@@ -50,8 +59,23 @@ bool World::IsColliding(const Vector2 &position, float radius) {
 }
 
 float World::GetGroundHeight(float x) {
-    float groundHeight = 400.0f;
+    // First check terrain points for ground height
+    float groundHeight = 400.0f; // Default fallback
+    
+    // Find the terrain height by interpolating between terrain points
+    for (size_t i = 0; i < m_terrainPoints.size() - 1; i++) {
+        const Vector2& point1 = m_terrainPoints[i];
+        const Vector2& point2 = m_terrainPoints[i + 1];
+        
+        if (x >= point1.x && x <= point2.x) {
+            // Linear interpolation between the two points
+            float t = (x - point1.x) / (point2.x - point1.x);
+            groundHeight = point1.y + t * (point2.y - point1.y);
+            break;
+        }
+    }
 
+    // Also check platforms for higher ground
     for (const auto &platform : m_platforms) {
         float platformWidth = 80.0f;
 
@@ -67,6 +91,10 @@ float World::GetGroundHeight(float x) {
 
 const vector<Vector2>& World::GetPlatforms() const {
     return m_platforms;
+}
+
+const vector<Vector2>& World::GetTerrainPoints() const {
+    return m_terrainPoints;
 }
 
 

@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "World.h"
 #include "InputManager.h"
+
 #include <iostream>
 #include <chrono>
 
@@ -88,9 +89,9 @@ void Game::Update(float deltaTime) {
     m_player->Update(deltaTime);
     m_world->Update(deltaTime);
 
-    // Debug output
-    Vector2 playerPos = m_player->GetPosition();
-    cout << "Player position: (" << playerPos.x << ", " << playerPos.y << ")" << endl;
+    // // Debug output
+    // Vector2 playerPos = m_player->GetPosition();
+    // cout << "Player position: (" << playerPos.x << ", " << playerPos.y << ")" << endl;
 
     m_renderer->SetCamera(m_player->GetPosition());
 }
@@ -100,7 +101,7 @@ void Game::Render() {
 
     m_renderer->DrawPlatforms(m_world.get());
 
-    m_renderer->DrawStickFigure(m_player->GetPosition(), m_player->GetAnimationPhase());
+    m_renderer->DrawStickFigure(m_player->GetBody());
 
     m_renderer->Present();
 }
