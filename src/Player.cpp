@@ -12,17 +12,27 @@ Player::Player()
     , m_animationTime(0.0f)
     , m_animationSpeed(2.0f)
     , m_facingRight(true)
+    , m_horizontalMode(false)
+    , m_orientationCooldown(0.0f)
 {
 
 }
 
 void Player::Update(float deltaTime) {
-    const float gravity = 800.0f;
-    if (!m_onGround) {
-        m_velocity.y += gravity * deltaTime;
+    // Update orientation cooldown
+    if (m_orientationCooldown > 0.0f) {
+        m_orientationCooldown -= deltaTime;
+    }
+    
+    // Apply gravity only in normal (vertical) mode
+    if (!m_horizontalMode) {
+        const float gravity = 800.0f;
+        if (!m_onGround) {
+            m_velocity.y += gravity * deltaTime;
+        }
     }
 
-    if (abs(m_velocity.x) > 10.0f) {
+    if (abs(m_velocity.x) > 10.0f || (m_horizontalMode && abs(m_velocity.y) > 10.0f)) {
         m_animationTime += deltaTime * m_animationSpeed;
     } else {
         m_animationTime = 0.0f;
@@ -31,26 +41,38 @@ void Player::Update(float deltaTime) {
     m_position.x += m_velocity.x * deltaTime;
     m_position.y += m_velocity.y * deltaTime;
     
-    float groundY = m_world ? m_world->GetGroundHeight(m_position.x) : 400.0f;
-    
-    // Adjust for leg length so feet land on ground (not the body base position)
-    float legLength = 30.0f; // Should match LEG_LENGTH from StickFigureBody
-    float feetY = m_position.y + legLength;
-    
-    if (feetY >= groundY) {
-        m_position.y = groundY - legLength; // Position body so feet are on ground
-        m_velocity.y = 0.0f;
-        m_onGround = true;
-    } else {
-        m_onGround = false;
+    // Only apply terrain collision in normal (vertical) mode
+    if (!m_horizontalMode) {
+        // Get both ground height and wave height, use the higher one (lower y value)
+        float groundY = m_world ? m_world->GetGroundHeight(m_position.x) : 400.0f;
+        float waveY = m_world ? m_world->GetWaveHeight(m_position.x) : 400.0f;
+        float terrainY = min(groundY, waveY); // Use the higher terrain (lower y value)
+        
+        // Adjust for leg length so feet land on terrain (not the body base position)
+        float legLength = 30.0f; // Should match LEG_LENGTH from StickFigureBody
+        float feetY = m_position.y + legLength;
+        
+        if (feetY >= terrainY) {
+            m_position.y = terrainY - legLength; // Position body so feet are on terrain
+            m_velocity.y = 0.0f;
+            m_onGround = true;
+        } else {
+            m_onGround = false;
+        }
     }
 
+    // Apply velocity damping
     m_velocity.x *= 0.9f;
+    
+    // In horizontal mode, also apply damping to y-velocity
+    if (m_horizontalMode) {
+        m_velocity.y *= 0.9f;
+    }
 
-    // Update body position and animation with speed information
+    // Update body position and animation with speed and orientation information
     m_body.SetPosition(m_position);
     float currentSpeed = sqrt(m_velocity.x * m_velocity.x + m_velocity.y * m_velocity.y) / m_speed;
-    m_body.UpdateAnimation(m_animationTime, m_facingRight, IsMoving(), currentSpeed);
+    m_body.UpdateAnimationWithOrientation(m_animationTime, m_facingRight, IsMoving(), currentSpeed, m_horizontalMode);
     
     // Update body physics for realistic movement reactions
     m_body.UpdatePhysics(deltaTime);
@@ -58,21 +80,35 @@ void Player::Update(float deltaTime) {
 }
 
 void Player::Move(const Vector2 &direction) {
+    // Always allow x-axis movement regardless of orientation
     if (direction.x < 0) {
         m_facingRight = false;
     } else if (direction.x > 0) {
         m_facingRight = true;
     }
-    // Note: if direction.x == 0, keep current facing
-
+    
     m_velocity.x += direction.x * m_speed;
 
-    if (direction.y > 0 && m_onGround) {
-        m_velocity.y = -m_jumpHeight;
-        m_onGround = false;
+    // Y-axis movement depends on orientation mode
+    if (m_horizontalMode) {
+        // In horizontal mode, y-direction moves the player up/down continuously
+        m_velocity.y += direction.y * m_speed * 0.8f; // Slightly slower for control
+    } else {
+        // In normal mode, only jump when on ground and direction.y > 0
+        if (direction.y > 0 && m_onGround) {
+            m_velocity.y = -m_jumpHeight;
+            m_onGround = false;
+        }
+        // Ignore downward input in normal mode (no crouching yet)
     }
 
     const float maxSpeed = m_speed;
     if (m_velocity.x > maxSpeed) m_velocity.x = maxSpeed;
     if (m_velocity.x < -maxSpeed) m_velocity.x = -maxSpeed;
+    
+    // Apply y-velocity limits in horizontal mode
+    if (m_horizontalMode) {
+        if (m_velocity.y > maxSpeed * 0.8f) m_velocity.y = maxSpeed * 0.8f;
+        if (m_velocity.y < -maxSpeed * 0.8f) m_velocity.y = -maxSpeed * 0.8f;
+    }
 }

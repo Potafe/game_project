@@ -44,6 +44,27 @@ void StickFigureBody::UpdateAnimation(float animationPhase, bool facingRight, bo
     }
 }
 
+void StickFigureBody::UpdateAnimationWithOrientation(float animationPhase, bool facingRight, bool isMoving, float speed, bool horizontalMode) {
+    m_currentAnimationPhase = animationPhase;
+    m_currentFacingRight = facingRight;
+    
+    if (horizontalMode) {
+        // In horizontal mode, body parts should be rotated 90 degrees
+        if (isMoving) {
+            UpdateHorizontalWalkingAnimation(animationPhase, facingRight);
+        } else {
+            UpdateHorizontalIdlePose();
+        }
+    } else {
+        // Normal vertical mode
+        if (isMoving) {
+            UpdateWalkingAnimation(animationPhase, facingRight);
+        } else {
+            UpdateIdlePose();
+        }
+    }
+}
+
 void StickFigureBody::UpdateIdlePose() {
     // Head position - on top of torso with small gap
     Vector2 headPos = Vector2(m_basePosition.x, m_basePosition.y - TORSO_HEIGHT - HEAD_RADIUS - 5.0f); // Added 5px gap
@@ -301,4 +322,60 @@ std::vector<BodyPart*> StickFigureBody::GetDrawingOrder(float animationPhase) co
     drawOrder.push_back(const_cast<BodyPart*>(&m_head));
     
     return drawOrder;
+}
+    
+void StickFigureBody::UpdateHorizontalIdlePose() {
+    // In horizontal mode, just rotate the normal pose by 90 degrees
+    // Start with normal idle pose positions
+    UpdateIdlePose();
+    
+    // Get the center point for rotation
+    Vector2 center = m_basePosition;
+    
+    // Rotate all body parts 90 degrees clockwise around the center
+    RotateBodyPartAroundCenter(m_head, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_torso, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_leftArm, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_rightArm, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_leftLeg, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_rightLeg, center, M_PI / 2);
+}
+
+void StickFigureBody::UpdateHorizontalWalkingAnimation(float phase, bool facingRight) {
+    // Start with normal walking animation
+    UpdateWalkingAnimation(phase, facingRight);
+    
+    // Get the center point for rotation
+    Vector2 center = m_basePosition;
+    
+    // Rotate all body parts 90 degrees clockwise around the center
+    RotateBodyPartAroundCenter(m_head, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_torso, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_leftArm, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_rightArm, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_leftLeg, center, M_PI / 2);
+    RotateBodyPartAroundCenter(m_rightLeg, center, M_PI / 2);
+}
+
+void StickFigureBody::RotateBodyPartAroundCenter(BodyPart& part, const Vector2& center, float angle) {
+    // Get current position relative to center
+    Vector2 currentPos = part.GetPosition();
+    Vector2 relative = Vector2(currentPos.x - center.x, currentPos.y - center.y);
+    
+    // Rotate the relative position
+    float cosAngle = cos(angle);
+    float sinAngle = sin(angle);
+    
+    Vector2 rotated = Vector2(
+        relative.x * cosAngle - relative.y * sinAngle,
+        relative.x * sinAngle + relative.y * cosAngle
+    );
+    
+    // Set new position relative to center
+    Vector2 newPos = Vector2(center.x + rotated.x, center.y + rotated.y);
+    part.SetPosition(newPos);
+    
+    // Also rotate the body part's own rotation
+    float currentRotation = part.GetRotation();
+    part.SetRotation(currentRotation + angle);
 }

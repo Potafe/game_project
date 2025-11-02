@@ -11,6 +11,7 @@ InputManager::InputManager()
     m_currentKeys = SDL_GetKeyboardState(&m_numKeys);
     m_previousKeys = new Uint8[m_numKeys];
 
+    // Initialize both arrays to 0
     memset(m_previousKeys, 0, m_numKeys);
 }
 
@@ -19,7 +20,9 @@ InputManager::~InputManager() {
 }
 
 void InputManager::Update() {
+    // Copy current state to previous state before SDL updates current
     memcpy(m_previousKeys, m_currentKeys, m_numKeys);
+    // SDL will update m_currentKeys automatically on next frame
 }
 
 void InputManager::HandleEvent(const SDL_Event &event) {
@@ -37,6 +40,11 @@ bool InputManager::IsKeyJustPressed(SDL_Scancode key) const {
     return m_currentKeys[key] && !m_previousKeys[key];
 }
 
+bool InputManager::IsOrientationTogglePressed() const {
+    // Use R key for orientation toggle (R for Rotate)
+    return IsKeyJustPressed(SDL_SCANCODE_R);
+}
+
 Vector2 InputManager::GetMovementInput() const {
     Vector2 movement(0.0f, 0.0f);
 
@@ -48,9 +56,17 @@ Vector2 InputManager::GetMovementInput() const {
         movement.x += 1.0f;
     }
 
-    // Jumping
+    // Vertical movement - support both jumping and continuous y-axis movement
     if (IsKeyJustPressed(SDL_SCANCODE_SPACE) || IsKeyJustPressed(SDL_SCANCODE_W) || IsKeyJustPressed(SDL_SCANCODE_UP)) {
+        movement.y = 1.0f; // For jumping in normal mode
+    }
+    
+    // Continuous y-axis movement for horizontal mode
+    if (IsKeyPressed(SDL_SCANCODE_W) || IsKeyPressed(SDL_SCANCODE_UP)) {
         movement.y = 1.0f;
+    }
+    if (IsKeyPressed(SDL_SCANCODE_S) || IsKeyPressed(SDL_SCANCODE_DOWN)) {
+        movement.y = -1.0f;
     }
     
     return movement;

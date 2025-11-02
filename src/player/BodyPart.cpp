@@ -36,3 +36,31 @@ void BodyPart::ApplyOffset(const Vector2& offset) {
     m_position.x += offset.x;
     m_position.y += offset.y;
 }
+
+Vector2 BodyPart::GetTopConnectionPoint() const {
+    float halfHeight = m_height / 2.0f;
+    float topX = m_position.x - sin(m_rotation) * halfHeight;
+    float topY = m_position.y - cos(m_rotation) * halfHeight;
+    return Vector2(topX, topY);
+}
+
+Vector2 BodyPart::GetBottomConnectionPoint() const {
+    float halfHeight = m_height / 2.0f;
+    float bottomX = m_position.x + sin(m_rotation) * halfHeight;
+    float bottomY = m_position.y + cos(m_rotation) * halfHeight;
+    return Vector2(bottomX, bottomY);
+}
+
+Vector2 BodyPart::GetLeftConnectionPoint() const {
+    float halfWidth = m_width / 2.0f;
+    float leftX = m_position.x - cos(m_rotation) * halfWidth;
+    float leftY = m_position.y + sin(m_rotation) * halfWidth;
+    return Vector2(leftX, leftY);
+}
+
+Vector2 BodyPart::GetRightConnectionPoint() const {
+    float halfWidth = m_width / 2.0f;
+    float rightX = m_position.x + cos(m_rotation) * halfWidth;
+    float rightY = m_position.y - sin(m_rotation) * halfWidth;
+    return Vector2(rightX, rightY);
+}

@@ -17,6 +17,7 @@ public:
 
     void DrawPlatforms(const World* world);
     void DrawStickFigure(const StickFigureBody& body);
+    void DrawAxes();
     void SetCamera(const Vector2& position);
 
 private:

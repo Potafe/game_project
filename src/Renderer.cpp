@@ -41,18 +41,21 @@ void Renderer::Present() {
 }
 
 void Renderer::DrawPlatforms(const World *world) {
-    // Draw terrain line
-    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // Black terrain line
+    // Draw coordinate axes
+    DrawAxes();
+    
+    // Draw ground line (x-axis terrain)
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // Black ground line
     
     const auto& terrainPoints = world->GetTerrainPoints();
     
-    // Draw rugged terrain line
+    // Draw straight ground line (x-axis)
     for (size_t i = 0; i < terrainPoints.size() - 1; i++) {
         Vector2 point1 = WorldToScreen(terrainPoints[i]);
         Vector2 point2 = WorldToScreen(terrainPoints[i + 1]);
         
-        // Draw thick line for terrain (3 pixels thick)
-        for (int offset = -1; offset <= 1; offset++) {
+        // Draw thick line for ground
+        for (int offset = -2; offset <= 2; offset++) {
             SDL_RenderDrawLine(m_renderer, 
                 static_cast<int>(point1.x), 
                 static_cast<int>(point1.y + offset),
@@ -61,26 +64,27 @@ void Renderer::DrawPlatforms(const World *world) {
         }
     }
     
-    // Draw remaining platforms as rectangles
-    SDL_SetRenderDrawColor(m_renderer, 139, 69, 19, 255); // Brown color for platforms
+    // Draw sine waves as climbable terrain in black
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255); // Black color for wave terrain
     
-    const auto& platforms = world->GetPlatforms();
+    const auto& sineWaves = world->GetSineWaves();
     
-    for (const auto& platform : platforms) {
-        // Draw platform as a rectangle
-        float platformWidth = 80.0f;
-        float platformHeight = 20.0f;
-        
-        Vector2 topLeft = WorldToScreen(Vector2(platform.x - platformWidth/2, platform.y - platformHeight/2));
-        Vector2 bottomRight = WorldToScreen(Vector2(platform.x + platformWidth/2, platform.y + platformHeight/2));
-        
-        SDL_Rect rect = {
-            static_cast<int>(topLeft.x),
-            static_cast<int>(topLeft.y),
-            static_cast<int>(bottomRight.x - topLeft.x),
-            static_cast<int>(bottomRight.y - topLeft.y)
-        };
-        SDL_RenderFillRect(m_renderer, &rect);
+    // Draw waves as connected lines (terrain) - only if we have waves
+    if (sineWaves.size() > 1) {
+        for (size_t i = 0; i < sineWaves.size() - 1; i++) {
+            Vector2 point1 = WorldToScreen(sineWaves[i]);
+            Vector2 point2 = WorldToScreen(sineWaves[i + 1]);
+            
+            // Check if points are close enough to connect (same wave line)
+            if (abs(sineWaves[i + 1].x - sineWaves[i].x) <= 20.0f) {
+                // Draw thick lines for wave terrain
+                for (int offset = -1; offset <= 1; offset++) {
+                    SDL_RenderDrawLine(m_renderer, 
+                        static_cast<int>(point1.x), static_cast<int>(point1.y + offset),
+                        static_cast<int>(point2.x), static_cast<int>(point2.y + offset));
+                }
+            }
+        }
     }
 }
 
@@ -181,6 +185,27 @@ void Renderer::DrawCircle(const Vector2& center, float radius) {
                 static_cast<int>(center.y + y));
         }
     }
+}
+
+void Renderer::DrawAxes() {
+    SDL_SetRenderDrawColor(m_renderer, 128, 128, 128, 255); // Gray color for axes
+    
+    // Draw X-axis (horizontal line through origin)
+    Vector2 xAxisStart = WorldToScreen(Vector2(-2000.0f, 0.0f));
+    Vector2 xAxisEnd = WorldToScreen(Vector2(2000.0f, 0.0f));
+    SDL_RenderDrawLine(m_renderer, 
+        static_cast<int>(xAxisStart.x), static_cast<int>(xAxisStart.y),
+        static_cast<int>(xAxisEnd.x), static_cast<int>(xAxisEnd.y));
+    
+    // Draw Y-axis (vertical line through origin)
+    Vector2 yAxisStart = WorldToScreen(Vector2(0.0f, -1000.0f));
+    Vector2 yAxisEnd = WorldToScreen(Vector2(0.0f, 1000.0f));
+    SDL_RenderDrawLine(m_renderer, 
+        static_cast<int>(yAxisStart.x), static_cast<int>(yAxisStart.y),
+        static_cast<int>(yAxisEnd.x), static_cast<int>(yAxisEnd.y));
+    
+    // Draw quadrant labels (optional - can be removed if not needed)
+    // You could add text rendering here if SDL_ttf is available
 }
 
 void Renderer::SetCamera(const Vector2& position) {

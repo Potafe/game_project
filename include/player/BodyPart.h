@@ -28,6 +28,12 @@ public:
     // For limbs - start and end points based on rotation
     Vector2 GetStartPoint() const;
     Vector2 GetEndPoint() const;
+    
+    // Connection points for body part linking
+    Vector2 GetTopConnectionPoint() const;     // Top of body part
+    Vector2 GetBottomConnectionPoint() const;  // Bottom of body part
+    Vector2 GetLeftConnectionPoint() const;    // Left side of body part
+    Vector2 GetRightConnectionPoint() const;   // Right side of body part
 
     // Physics properties
     void ApplyOffset(const Vector2& offset);

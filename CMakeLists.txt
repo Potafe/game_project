@@ -19,6 +19,10 @@ set(SOURCES
     src/InputManager.cpp
     src/player/BodyPart.cpp
     src/player/StickFigureBody.cpp
+    src/world/AnimalWorld.cpp
+    src/world/DemonWorld.cpp
+    src/world/HumanWorld.cpp
+    src/world/InsectWorld.cpp
 )
 
 set(HEADERS
@@ -30,6 +34,10 @@ set(HEADERS
     include/Vector2.h
     include/player/BodyPart.h
     include/player/StickFigureBody.h
+    include/world/AnimalWorld.h
+    include/world/DemonWorld.h
+    include/world/HumanWorld.h
+    include/world/InsectWorld.h
 )
 
 # Create executable

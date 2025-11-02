@@ -16,7 +16,18 @@ public:
 
     float GetAnimationPhase() const { return m_animationTime; }
     bool IsFacingRight() const { return m_facingRight; }
-    bool IsMoving() const { return abs(m_velocity.x) > 10.0f; }
+    bool IsMoving() const { return abs(m_velocity.x) > 10.0f || abs(m_velocity.y) > 10.0f; }
+    bool IsHorizontalMode() const { return m_horizontalMode; }
+
+    void SetHorizontalMode(bool horizontal) { m_horizontalMode = horizontal; }
+    void ToggleOrientation() { m_horizontalMode = !m_horizontalMode; }
+    bool CanToggleOrientation() const { return m_orientationCooldown <= 0.0f; }
+    void TriggerOrientationToggle() { 
+        if (CanToggleOrientation()) {
+            ToggleOrientation(); 
+            m_orientationCooldown = 0.3f; // 300ms cooldown
+        }
+    }
 
     const StickFigureBody& GetBody() const { return m_body; }
 
@@ -28,8 +39,12 @@ private:
     bool m_onGround;
     World* m_world;
     bool m_facingRight;
+    bool m_horizontalMode;      // True when traversing y-axis horizontally
 
     float m_animationTime;
     float m_animationSpeed;
     StickFigureBody m_body;
+    
+    // Orientation toggle cooldown
+    float m_orientationCooldown;
 };

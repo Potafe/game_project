@@ -9,6 +9,7 @@ public:
     StickFigureBody();
 
     void UpdateAnimation(float animationPhase, bool facingRight, bool isMoving, float speed = 1.0f);
+    void UpdateAnimationWithOrientation(float animationPhase, bool facingRight, bool isMoving, float speed, bool horizontalMode);
     void SetPosition(const Vector2 &position);
 
     // Get individual body parts
@@ -47,6 +48,10 @@ private:
     void UpdateWalkingAnimation(float phase, bool facingRight);
     void UpdateJumpingPose();
     
+    // Horizontal orientation animation states
+    void UpdateHorizontalIdlePose();
+    void UpdateHorizontalWalkingAnimation(float phase, bool facingRight);
+    
     // Animation phase for drawing order
     float m_currentAnimationPhase;
     bool m_currentFacingRight;
@@ -54,6 +59,7 @@ private:
     // Physics helpers
     void ApplyLimbSwing(BodyPart& limb, float swingAmount, float maxAngle);
     void UpdateLimbPhysics(BodyPart& limb, float deltaTime);
+    void RotateBodyPartAroundCenter(BodyPart& part, const Vector2& center, float angle);
     
     // Body proportions
     static constexpr float HEAD_RADIUS = 12.0f;

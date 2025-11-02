@@ -85,9 +85,33 @@ void Game::Update(float deltaTime) {
 
     Vector2 movement = m_input->GetMovementInput();
     m_player->Move(movement);
+    
+    // Debug R key detection
+    if (m_input->IsKeyPressed(SDL_SCANCODE_R)) {
+        cout << "R key is being pressed!" << endl;
+    }
+    if (m_input->IsKeyJustPressed(SDL_SCANCODE_R)) {
+        cout << "R key just pressed!" << endl;
+    } else if (m_input->IsKeyPressed(SDL_SCANCODE_R)) {
+        cout << "R key held (not just pressed)" << endl;
+    }
+    
+    // Handle orientation toggle (R key) with cooldown
+    if (m_input->IsKeyPressed(SDL_SCANCODE_R) && m_player->CanToggleOrientation()) {
+        m_player->TriggerOrientationToggle();
+        cout << "Orientation toggled! Horizontal mode: " << (m_player->IsHorizontalMode() ? "ON" : "OFF") << endl;
+    }
 
     m_player->Update(deltaTime);
     m_world->Update(deltaTime);
+
+    // Debug output for orientation mode
+    static bool lastHorizontalMode = false;
+    bool currentHorizontalMode = m_player->IsHorizontalMode();
+    if (currentHorizontalMode != lastHorizontalMode) {
+        cout << "Mode changed! Now in: " << (currentHorizontalMode ? "HORIZONTAL" : "VERTICAL") << " mode" << endl;
+        lastHorizontalMode = currentHorizontalMode;
+    }
 
     // // Debug output
     // Vector2 playerPos = m_player->GetPosition();
