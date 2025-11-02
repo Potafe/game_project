@@ -17,6 +17,8 @@ set(SOURCES
     src/World.cpp
     src/Renderer.cpp
     src/InputManager.cpp
+    src/player/BodyPart.cpp
+    src/player/StickFigureBody.cpp
 )
 
 set(HEADERS
@@ -26,6 +28,8 @@ set(HEADERS
     include/Renderer.h
     include/InputManager.h
     include/Vector2.h
+    include/player/BodyPart.h
+    include/player/StickFigureBody.h
 )
 
 # Create executable
