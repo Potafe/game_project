@@ -83,7 +83,8 @@ void Game::Run() {
 
 void Game::Update(float deltaTime) {
     Vector2 movement = m_input->GetMovementInput();
-    m_player->Move(movement);
+    bool isSprinting = m_input->IsShiftPressed();
+    m_player->Move(movement, isSprinting);
     
     // Handle orientation toggle (R key) with cooldown
     if (m_input->IsKeyPressed(SDL_SCANCODE_R) && m_player->CanToggleOrientation()) {
@@ -132,6 +133,9 @@ void Game::Render() {
         m_renderer->DrawBullets(gun->GetBullets());
     }
 
+    // Draw speed lines behind the player when sprinting
+    m_renderer->DrawSpeedLines(m_player->GetPosition(), m_player->IsFacingRight(), m_player->IsSprinting());
+
     m_renderer->DrawStickFigure(m_player->GetBody());
 
     // Draw gun on player's hand (only if gun is equipped)
@@ -142,6 +146,7 @@ void Game::Render() {
 
     // Draw UI elements
     m_renderer->DrawHealthBar(m_player->GetHealth(), WINDOW_WIDTH, WINDOW_HEIGHT);
+    m_renderer->DrawStaminaBar(m_player->GetCurrentStamina(), m_player->GetMaxStamina(), WINDOW_WIDTH, WINDOW_HEIGHT);
     m_renderer->DrawWeaponBar(m_player->GetCurrentWeapon(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
     m_renderer->Present();

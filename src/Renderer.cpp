@@ -267,6 +267,75 @@ void Renderer::DrawWeaponBar(const Weapon* weapon, int screenWidth, int screenHe
     }
 }
 
+void Renderer::DrawStaminaBar(float currentStamina, float maxStamina, int screenWidth, int screenHeight) {
+    // Draw stamina bar in top-left corner, below health
+    float barX = 10.0f;
+    float barY = 50.0f; // Below the hearts (hearts are at y=10, size=20, so start at 50)
+    float barWidth = 100.0f;
+    float barHeight = 15.0f;
+    
+    // Background bar (gray)
+    SDL_SetRenderDrawColor(m_renderer, 100, 100, 100, 255);
+    SDL_Rect bgRect = { (int)barX, (int)barY, (int)barWidth, (int)barHeight };
+    SDL_RenderFillRect(m_renderer, &bgRect);
+    
+    // Stamina bar (blue)
+    float staminaRatio = currentStamina / maxStamina;
+    SDL_SetRenderDrawColor(m_renderer, 0, 100, 255, 255); // Blue color
+    SDL_Rect staminaRect = { (int)barX, (int)barY, (int)(barWidth * staminaRatio), (int)barHeight };
+    SDL_RenderFillRect(m_renderer, &staminaRect);
+    
+    // Border
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(m_renderer, &bgRect);
+}
+
+void Renderer::DrawSpeedLines(const Vector2& playerPosition, bool facingRight, bool isSprinting) {
+    if (!isSprinting) return;
+    
+    SDL_SetRenderDrawColor(m_renderer, 200, 200, 200, 120); // Light gray with transparency
+    
+    Vector2 screenPos = WorldToScreen(playerPosition);
+    
+    // Draw animated speed lines behind the player
+    const int numLines = 12; // More lines for better effect
+    const float baseLength = 25.0f;
+    const float spreadAngle = 60.0f; // degrees - wider spread
+    const float baseOffset = 20.0f; // Distance behind player
+    
+    // Add some time-based animation
+    static float animationTime = 0.0f;
+    animationTime += 0.016f; // Approximate 60 FPS
+    
+    for (int i = 0; i < numLines; ++i) {
+        // Calculate angle for this line (spread out behind player)
+        float angleOffset = (i - numLines/2) * (spreadAngle / numLines);
+        float angle = facingRight ? 180.0f + angleOffset : 0.0f + angleOffset;
+        float radAngle = angle * 3.14159f / 180.0f;
+        
+        // Add some randomness and animation
+        float randomOffset = sin(animationTime * 3.0f + i * 0.5f) * 5.0f; // Wavy motion
+        float lengthVariation = sin(animationTime * 2.0f + i * 0.3f) * 8.0f; // Length pulsing
+        
+        // Calculate start and end positions
+        float startX = screenPos.x - (facingRight ? -baseOffset : baseOffset) + cos(radAngle) * (10.0f + randomOffset);
+        float startY = screenPos.y + sin(radAngle) * (10.0f + randomOffset);
+        float lineLength = baseLength + lengthVariation;
+        float endX = startX + cos(radAngle) * lineLength;
+        float endY = startY + sin(radAngle) * lineLength;
+        
+        // Draw the line with slight thickness variation
+        DrawLine(Vector2(startX, startY), Vector2(endX, endY));
+        
+        // Add a second line slightly offset for more density
+        if (i % 3 == 0) { // Every third line
+            float offsetX = cos(radAngle + 1.57f) * 3.0f; // 90 degrees offset
+            float offsetY = sin(radAngle + 1.57f) * 3.0f;
+            DrawLine(Vector2(startX + offsetX, startY + offsetY), Vector2(endX + offsetX, endY + offsetY));
+        }
+    }
+}
+
 
 void Renderer::DrawWeaponIcon(const Weapon* weapon, float x, float y) {
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);

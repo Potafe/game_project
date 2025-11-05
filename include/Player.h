@@ -10,7 +10,7 @@ public:
     Player();
 
     void Update(float deltaTime);
-    void Move(const Vector2 &direction);
+    void Move(const Vector2 &direction, bool isSprinting);
     void SetWorld(World* world) { m_world = world; }
 
     Vector2 GetPosition() const { return m_position; }
@@ -46,6 +46,12 @@ public:
     void FireGun();
     Vector2 GetHandPosition() const;
 
+    // Stamina system
+    float GetCurrentStamina() const { return m_currentStamina; }
+    float GetMaxStamina() const { return m_maxStamina; }
+    bool CanSprint() const { return m_currentStamina > 0.0f; }
+    bool IsSprinting() const { return m_isSprinting; }
+
     // Input handling
     void HandleInput(float deltaTime);
     
@@ -65,6 +71,16 @@ private:
     
     // Orientation toggle cooldown
     float m_orientationCooldown;
+
+    // sprint option
+    float m_sprintMultiplier;
+    bool m_isSprinting;
+
+    // Stamina system
+    float m_maxStamina;
+    float m_currentStamina;
+    float m_staminaDepletionRate;  // per second when sprinting
+    float m_staminaRegenerationRate;  // per second when not sprinting
 
     // Health and Weapon systems
     Health m_health;

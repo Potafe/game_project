@@ -21,6 +21,12 @@ Player::Player()
     , m_orientationCooldown(0.0f)
     , m_health(5)  // 5 hearts
     , m_currentWeapon(make_unique<Gun>())  // Default weapon
+    , m_sprintMultiplier(2.5f)
+    , m_isSprinting(false)
+    , m_maxStamina(100.0f)
+    , m_currentStamina(100.0f)
+    , m_staminaDepletionRate(30.0f)  // Lose 30 stamina per second when sprinting
+    , m_staminaRegenerationRate(20.0f)  // Gain 20 stamina per second when not sprinting
 {
 
 }
@@ -40,7 +46,9 @@ void Player::Update(float deltaTime) {
     }
 
     if (abs(m_velocity.x) > 10.0f || (m_horizontalMode && abs(m_velocity.y) > 10.0f)) {
-        m_animationTime += deltaTime * m_animationSpeed;
+        // Update animation speed based on sprinting
+        float animationMultiplier = m_isSprinting ? 1.5f : 1.0f;
+        m_animationTime += deltaTime * m_animationSpeed * animationMultiplier;
     } else {
         m_animationTime = 0.0f;
     }
@@ -94,22 +102,46 @@ void Player::Update(float deltaTime) {
             hammer->Charge(deltaTime);
         }
     }
+
+    // Update stamina
+    if (m_isSprinting) {
+        // Deplete stamina when sprinting (faster depletion when low on stamina)
+        float depletionMultiplier = (m_currentStamina < 20.0f) ? 2.0f : 1.0f; // Double depletion when below 20 stamina
+        m_currentStamina -= m_staminaDepletionRate * depletionMultiplier * deltaTime;
+        if (m_currentStamina <= 0.0f) {
+            m_currentStamina = 0.0f;
+            m_isSprinting = false; // Force stop sprinting when stamina runs out
+        }
+    } else {
+        // Regenerate stamina when not sprinting
+        m_currentStamina += m_staminaRegenerationRate * deltaTime;
+        if (m_currentStamina > m_maxStamina) {
+            m_currentStamina = m_maxStamina;
+        }
+    }
 }
 
-void Player::Move(const Vector2 &direction) {
+void Player::Move(const Vector2 &direction, bool isSprinting) {
     // Always allow x-axis movement regardless of orientation
     if (direction.x < 0) {
         m_facingRight = false;
     } else if (direction.x > 0) {
         m_facingRight = true;
     }
+
+    // Only allow sprinting if we have any stamina left
+    bool canSprint = isSprinting && (m_currentStamina > 0.0f);
+    m_isSprinting = canSprint;
     
-    m_velocity.x += direction.x * m_speed;
+    // Calculate movement speed (normal or sprint)
+    float currentSpeed = canSprint ? m_speed * m_sprintMultiplier : m_speed;
+    
+    m_velocity.x += direction.x * currentSpeed;
 
     // Y-axis movement depends on orientation mode
     if (m_horizontalMode) {
         // In horizontal mode, y-direction moves the player up/down continuously
-        m_velocity.y += direction.y * m_speed * 0.8f; // Slightly slower for control
+        m_velocity.y += direction.y * currentSpeed * 0.8f; // Slightly slower for control
     } else {
         // In normal mode, only jump when on ground and direction.y > 0
         if (direction.y > 0 && m_onGround) {
@@ -119,7 +151,8 @@ void Player::Move(const Vector2 &direction) {
         // Ignore downward input in normal mode (no crouching yet)
     }
 
-    const float maxSpeed = m_speed;
+    // Apply speed limits based on current speed mode
+    float maxSpeed = currentSpeed;
     if (m_velocity.x > maxSpeed) m_velocity.x = maxSpeed;
     if (m_velocity.x < -maxSpeed) m_velocity.x = -maxSpeed;
     

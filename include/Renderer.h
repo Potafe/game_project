@@ -34,6 +34,8 @@ public:
     // UI drawing methods
     void DrawHealthBar(const Health& health, int screenWidth, int screenHeight);
     void DrawWeaponBar(const Weapon* weapon, int screenWidth, int screenHeight);
+    void DrawStaminaBar(float currentStamina, float maxStamina, int screenWidth, int screenHeight);
+    void DrawSpeedLines(const Vector2& playerPosition, bool facingRight, bool isSprinting);
     void DrawWeaponIcon(const Weapon* weapon, float x, float y);
     void DrawCooldownBar(const Weapon* weapon, float x, float y);
     void DrawChargeBar(const Hammer* hammer, float x, float y);

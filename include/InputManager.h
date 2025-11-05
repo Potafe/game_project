@@ -12,7 +12,8 @@ public:
 
     bool IsKeyPressed(SDL_Scancode key) const;
     bool IsKeyJustPressed(SDL_Scancode key) const;
-    bool IsOrientationTogglePressed() const;  // O key for orientation toggle
+    bool IsOrientationTogglePressed() const;  // R key for orientation toggle
+    bool IsShiftPressed() const;
     Vector2 GetMovementInput() const;
 
 private:

@@ -51,6 +51,10 @@ bool InputManager::IsOrientationTogglePressed() const {
     return IsKeyJustPressed(SDL_SCANCODE_R);
 }
 
+bool InputManager::IsShiftPressed() const {
+    return m_currentKeys[SDL_SCANCODE_LSHIFT] || m_currentKeys[SDL_SCANCODE_RSHIFT];
+}
+
 Vector2 InputManager::GetMovementInput() const {
     Vector2 movement(0.0f, 0.0f);
 
