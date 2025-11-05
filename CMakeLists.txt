@@ -17,6 +17,11 @@ set(SOURCES
     src/World.cpp
     src/Renderer.cpp
     src/InputManager.cpp
+    src/player/Health.cpp
+    src/Weapon.cpp
+    src/weapons/Gun.cpp
+    src/weapons/Hammer.cpp
+    src/weapons/Bullet.cpp
     src/player/BodyPart.cpp
     src/player/StickFigureBody.cpp
     src/world/AnimalWorld.cpp
@@ -32,8 +37,13 @@ set(HEADERS
     include/Renderer.h
     include/InputManager.h
     include/Vector2.h
+    include/Weapon.h
+    include/weapons/Gun.h
+    include/weapons/Hammer.h
+    include/weapons/Bullet.h
     include/player/BodyPart.h
     include/player/StickFigureBody.h
+    include/player/Health.h
     include/world/AnimalWorld.h
     include/world/DemonWorld.h
     include/world/HumanWorld.h

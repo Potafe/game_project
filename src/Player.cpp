@@ -1,4 +1,9 @@
 #include "Player.h"
+#include "weapons/Gun.h"
+#include "weapons/Hammer.h"
+#include "weapons/Bullet.h"
+#include <iostream>
+#include <cstdio>
 
 using namespace std;
 
@@ -14,6 +19,8 @@ Player::Player()
     , m_facingRight(true)
     , m_horizontalMode(false)
     , m_orientationCooldown(0.0f)
+    , m_health(5)  // 5 hearts
+    , m_currentWeapon(make_unique<Gun>())  // Default weapon
 {
 
 }
@@ -77,6 +84,16 @@ void Player::Update(float deltaTime) {
     // Update body physics for realistic movement reactions
     m_body.UpdatePhysics(deltaTime);
     m_body.ReactToMovement(m_velocity, deltaTime);
+    
+    // Update weapon
+    if (m_currentWeapon) {
+        m_currentWeapon->Update(deltaTime);
+        
+        // Special handling for hammer charging
+        if (auto hammer = dynamic_cast<Hammer*>(m_currentWeapon.get())) {
+            hammer->Charge(deltaTime);
+        }
+    }
 }
 
 void Player::Move(const Vector2 &direction) {
@@ -110,5 +127,45 @@ void Player::Move(const Vector2 &direction) {
     if (m_horizontalMode) {
         if (m_velocity.y > maxSpeed * 0.8f) m_velocity.y = maxSpeed * 0.8f;
         if (m_velocity.y < -maxSpeed * 0.8f) m_velocity.y = -maxSpeed * 0.8f;
+    }
+}
+
+void Player::CycleWeapon() {
+    if (dynamic_cast<Gun*>(m_currentWeapon.get())) {
+        m_currentWeapon = std::make_unique<Hammer>();
+    } else {
+        m_currentWeapon = std::make_unique<Gun>();
+    }
+    cout << "Switched to weapon: " << m_currentWeapon->GetName() << endl;
+}
+
+void Player::FireGun() {
+    if (auto gun = dynamic_cast<Gun*>(m_currentWeapon.get())) {
+        if (gun->IsReady() && !gun->IsOutOfAmmo()) {
+            // Calculate firing direction based on facing
+            Vector2 fireDirection = m_facingRight ? Vector2(1.0f, 0.0f) : Vector2(-1.0f, 0.0f);
+            
+            // Get hand position for bullet spawn
+            Vector2 handPos = GetHandPosition();
+            
+            // Create bullet
+            gun->GetBullets().push_back(std::make_unique<Bullet>(handPos, fireDirection));
+            
+            // Use the gun (applies cooldown and reduces ammo)
+            gun->Use();
+        }
+    }
+}
+
+Vector2 Player::GetHandPosition() const {
+    // Get the right hand position based on current animation
+    Vector2 basePos = m_position;
+    
+    if (m_horizontalMode) {
+        // In horizontal mode, adjust hand position accordingly
+        return basePos + Vector2(m_facingRight ? 25.0f : -25.0f, 0.0f);
+    } else {
+        // In vertical mode, hand is at shoulder level
+        return basePos + Vector2(m_facingRight ? 15.0f : -15.0f, -40.0f);
     }
 }

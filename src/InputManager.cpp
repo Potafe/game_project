@@ -1,5 +1,6 @@
 #include "InputManager.h"
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
@@ -22,7 +23,8 @@ InputManager::~InputManager() {
 void InputManager::Update() {
     // Copy current state to previous state before SDL updates current
     memcpy(m_previousKeys, m_currentKeys, m_numKeys);
-    // SDL will update m_currentKeys automatically on next frame
+    // Force SDL to update the keyboard state
+    SDL_PumpEvents();
 }
 
 void InputManager::HandleEvent(const SDL_Event &event) {
@@ -37,7 +39,11 @@ bool InputManager::IsKeyPressed(SDL_Scancode key) const {
 
 bool InputManager::IsKeyJustPressed(SDL_Scancode key) const {
     if (key < 0 || key >= m_numKeys) return false;
-    return m_currentKeys[key] && !m_previousKeys[key];
+    bool currentPressed = m_currentKeys[key] != 0;
+    bool previousPressed = m_previousKeys[key] != 0;
+    bool justPressed = currentPressed && !previousPressed;
+    
+    return justPressed;
 }
 
 bool InputManager::IsOrientationTogglePressed() const {

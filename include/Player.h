@@ -2,6 +2,8 @@
 #include "Vector2.h"
 #include "World.h"
 #include "player/StickFigureBody.h"
+#include "player/Health.h"
+#include "Weapon.h"
 
 class Player {
 public:
@@ -31,6 +33,22 @@ public:
 
     const StickFigureBody& GetBody() const { return m_body; }
 
+    // Health system
+    Health& GetHealth() { return m_health; }
+    const Health& GetHealth() const { return m_health; }
+    
+    // Weapon system
+    Weapon* GetCurrentWeapon() { return m_currentWeapon.get(); }
+    const Weapon* GetCurrentWeapon() const { return m_currentWeapon.get(); }
+    void CycleWeapon();
+
+    // Gun firing
+    void FireGun();
+    Vector2 GetHandPosition() const;
+
+    // Input handling
+    void HandleInput(float deltaTime);
+    
 private:
     Vector2 m_position;
     Vector2 m_velocity;
@@ -47,4 +65,8 @@ private:
     
     // Orientation toggle cooldown
     float m_orientationCooldown;
+
+    // Health and Weapon systems
+    Health m_health;
+    unique_ptr<Weapon> m_currentWeapon;
 };

@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "World.h"
 #include "InputManager.h"
+#include "weapons/Gun.h"
 
 #include <iostream>
 #include <chrono>
@@ -81,25 +82,23 @@ void Game::Run() {
 }
 
 void Game::Update(float deltaTime) {
-    m_input->Update();
-
     Vector2 movement = m_input->GetMovementInput();
     m_player->Move(movement);
-    
-    // Debug R key detection
-    if (m_input->IsKeyPressed(SDL_SCANCODE_R)) {
-        cout << "R key is being pressed!" << endl;
-    }
-    if (m_input->IsKeyJustPressed(SDL_SCANCODE_R)) {
-        cout << "R key just pressed!" << endl;
-    } else if (m_input->IsKeyPressed(SDL_SCANCODE_R)) {
-        cout << "R key held (not just pressed)" << endl;
-    }
     
     // Handle orientation toggle (R key) with cooldown
     if (m_input->IsKeyPressed(SDL_SCANCODE_R) && m_player->CanToggleOrientation()) {
         m_player->TriggerOrientationToggle();
         cout << "Orientation toggled! Horizontal mode: " << (m_player->IsHorizontalMode() ? "ON" : "OFF") << endl;
+    }
+
+    // Handle weapon switching (1 key cycles between weapons)
+    if (m_input->IsKeyJustPressed(SDL_SCANCODE_1)) {
+        m_player->CycleWeapon();
+    }
+
+    // Handle gun firing (Enter key)
+    if (m_input->IsKeyJustPressed(SDL_SCANCODE_RETURN)) {
+        m_player->FireGun();
     }
 
     m_player->Update(deltaTime);
@@ -118,6 +117,9 @@ void Game::Update(float deltaTime) {
     // cout << "Player position: (" << playerPos.x << ", " << playerPos.y << ")" << endl;
 
     m_renderer->SetCamera(m_player->GetPosition());
+    
+    // Update input manager at the end of the frame
+    m_input->Update();
 }
 
 void Game::Render() {
@@ -125,7 +127,22 @@ void Game::Render() {
 
     m_renderer->DrawPlatforms(m_world.get());
 
+    // Draw bullets first (behind player)
+    if (auto gun = dynamic_cast<Gun*>(m_player->GetCurrentWeapon())) {
+        m_renderer->DrawBullets(gun->GetBullets());
+    }
+
     m_renderer->DrawStickFigure(m_player->GetBody());
+
+    // Draw gun on player's hand (only if gun is equipped)
+    if (dynamic_cast<Gun*>(m_player->GetCurrentWeapon())) {
+        Vector2 handPos = m_player->GetHandPosition();
+        m_renderer->DrawGun(handPos, m_player->IsFacingRight(), m_player->IsHorizontalMode());
+    }
+
+    // Draw UI elements
+    m_renderer->DrawHealthBar(m_player->GetHealth(), WINDOW_WIDTH, WINDOW_HEIGHT);
+    m_renderer->DrawWeaponBar(m_player->GetCurrentWeapon(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
     m_renderer->Present();
 }
