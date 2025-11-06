@@ -1,9 +1,11 @@
-#include "../../include/player/StickFigureBody.h"
+#include "player/StickFigureBody.h"
 #include <cmath>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+using namespace std;
 
 StickFigureBody::StickFigureBody()
     : m_head(BodyPartType::HEAD, Vector2(0, 0), HEAD_RADIUS * 2, HEAD_RADIUS * 2)
@@ -22,7 +24,7 @@ void StickFigureBody::SetPosition(const Vector2& position) {
     m_basePosition = position;
 }
 
-const std::vector<BodyPart*> StickFigureBody::GetAllParts() const {
+const vector<BodyPart*> StickFigureBody::GetAllParts() const {
     return {
         const_cast<BodyPart*>(&m_head),
         const_cast<BodyPart*>(&m_torso),
@@ -282,8 +284,8 @@ bool StickFigureBody::IsLimbInFront(BodyPartType limbType, float animationPhase)
     }
 }
 
-std::vector<BodyPart*> StickFigureBody::GetDrawingOrder(float animationPhase) const {
-    std::vector<BodyPart*> drawOrder;
+vector<BodyPart*> StickFigureBody::GetDrawingOrder(float animationPhase) const {
+    vector<BodyPart*> drawOrder;
     
     // Always draw back limbs first, then torso, then front limbs, then head
     

@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+using namespace std;
+
 class Gun : public Weapon {
 public:
     Gun();
@@ -23,11 +25,11 @@ public:
     bool IsOutOfAmmo() const { return m_ammo <= 0; }
 
     // Bullet management
-    std::vector<std::unique_ptr<Bullet>>& GetBullets() { return m_bullets; }
-    const std::vector<std::unique_ptr<Bullet>>& GetBullets() const { return m_bullets; }
+    vector<unique_ptr<Bullet>>& GetBullets() { return m_bullets; }
+    const vector<unique_ptr<Bullet>>& GetBullets() const { return m_bullets; }
 
 private:
     int m_ammo;
     static const int MAX_AMMO = 30;
-    std::vector<std::unique_ptr<Bullet>> m_bullets;
+    vector<unique_ptr<Bullet>> m_bullets;
 };

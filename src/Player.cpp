@@ -165,9 +165,9 @@ void Player::Move(const Vector2 &direction, bool isSprinting) {
 
 void Player::CycleWeapon() {
     if (dynamic_cast<Gun*>(m_currentWeapon.get())) {
-        m_currentWeapon = std::make_unique<Hammer>();
+        m_currentWeapon = make_unique<Hammer>();
     } else {
-        m_currentWeapon = std::make_unique<Gun>();
+        m_currentWeapon = make_unique<Gun>();
     }
     cout << "Switched to weapon: " << m_currentWeapon->GetName() << endl;
 }
@@ -182,7 +182,7 @@ void Player::FireGun() {
             Vector2 handPos = GetHandPosition();
             
             // Create bullet
-            gun->GetBullets().push_back(std::make_unique<Bullet>(handPos, fireDirection));
+            gun->GetBullets().push_back(make_unique<Bullet>(handPos, fireDirection));
             
             // Use the gun (applies cooldown and reduces ammo)
             gun->Use();

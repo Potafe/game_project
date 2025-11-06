@@ -5,6 +5,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+using namespace std;
+
+
 DemonWorld::DemonWorld()
     : m_amplitude(45.0f)
     , m_frequency(0.06f)
@@ -21,7 +24,7 @@ void DemonWorld::GenerateWaves(float waveTime) {
     // No waves - empty quadrant
 }
 
-const std::vector<Vector2>& DemonWorld::GetWavePoints() const {
+const vector<Vector2>& DemonWorld::GetWavePoints() const {
     return m_wavePoints;
 }
 

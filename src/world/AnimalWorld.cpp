@@ -5,6 +5,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+using namespace std;
+
 AnimalWorld::AnimalWorld()
     : m_amplitude(50.0f)
     , m_frequency(0.04f)
@@ -21,7 +23,7 @@ void AnimalWorld::GenerateWaves(float waveTime) {
     // No waves - empty quadrant
 }
 
-const std::vector<Vector2>& AnimalWorld::GetWavePoints() const {
+const vector<Vector2>& AnimalWorld::GetWavePoints() const {
     return m_wavePoints;
 }
 

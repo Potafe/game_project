@@ -31,8 +31,8 @@ void Gun::Update(float deltaTime) {
     
     // Remove inactive bullets
     m_bullets.erase(
-        std::remove_if(m_bullets.begin(), m_bullets.end(),
-            [](const std::unique_ptr<Bullet>& bullet) {
+        remove_if(m_bullets.begin(), m_bullets.end(),
+            [](const unique_ptr<Bullet>& bullet) {
                 return !bullet->IsActive();
             }),
         m_bullets.end()

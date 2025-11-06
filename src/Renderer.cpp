@@ -463,7 +463,7 @@ void Renderer::DrawGun(const Vector2& handPosition, bool facingRight, bool horiz
     }
 }
 
-void Renderer::DrawBullets(const std::vector<std::unique_ptr<Bullet>>& bullets) {
+void Renderer::DrawBullets(const vector<unique_ptr<Bullet>>& bullets) {
     for (const auto& bullet : bullets) {
         bullet->Render(this);
     }

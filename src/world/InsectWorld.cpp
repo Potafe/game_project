@@ -5,6 +5,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+using namespace std;
+
 InsectWorld::InsectWorld()
     : m_amplitude(55.0f)
     , m_frequency(0.045f)
@@ -21,7 +23,7 @@ void InsectWorld::GenerateWaves(float waveTime) {
     // No waves - empty quadrant
 }
 
-const std::vector<Vector2>& InsectWorld::GetWavePoints() const {
+const vector<Vector2>& InsectWorld::GetWavePoints() const {
     return m_wavePoints;
 }
 

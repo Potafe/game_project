@@ -6,6 +6,9 @@
 #include <vector>
 #include <memory>
 
+using namespace std;
+
+
 class World;
 class StickFigureBody;
 class BodyPart;
@@ -43,7 +46,7 @@ public:
     
     // Gun and bullet rendering
     void DrawGun(const Vector2& handPosition, bool facingRight, bool horizontalMode);
-    void DrawBullets(const std::vector<std::unique_ptr<Bullet>>& bullets);
+    void DrawBullets(const vector<unique_ptr<Bullet>>& bullets);
     void DrawCircle(const Vector2& center, float radius, SDL_Color color);
 
 private:

@@ -2,6 +2,8 @@
 #include "../Vector2.h"
 #include <vector>
 
+using namespace std;
+
 class DemonWorld {
 public:
     DemonWorld();
@@ -9,11 +11,11 @@ public:
     void Update(float deltaTime);
     void GenerateWaves(float waveTime);
     
-    const std::vector<Vector2>& GetWavePoints() const;
+    const vector<Vector2>& GetWavePoints() const;
     float GetTerrainHeight(float x) const;
     
 private:
-    std::vector<Vector2> m_wavePoints;
+    vector<Vector2> m_wavePoints;
     float m_amplitude;
     float m_frequency;
     int m_worldWidth;

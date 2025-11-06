@@ -4,9 +4,12 @@
 #include "World.h"
 #include "InputManager.h"
 #include "weapons/Gun.h"
+#include "Enemy.h"
+#include "enemies/Animal.h"
 
 #include <iostream>
 #include <chrono>
+#include <algorithm>
 
 using namespace std;
 
@@ -54,6 +57,10 @@ bool Game:: Init() {
 
     m_world->Generate();
     m_player->SetWorld(m_world.get());
+
+    // Create test enemies
+    m_enemies.push_back(make_unique<Animal>());
+    m_enemies.back()->SetPosition(Vector2(200.0f, 300.0f)); // Position enemy near player
 
     m_running = true;
     return true;
@@ -105,6 +112,18 @@ void Game::Update(float deltaTime) {
     m_player->Update(deltaTime);
     m_world->Update(deltaTime);
 
+    // Update enemies
+    for (auto& enemy : m_enemies) {
+        enemy->Update(deltaTime, m_player.get(), m_world.get());
+    }
+
+    // Remove dead enemies
+    m_enemies.erase(
+        remove_if(m_enemies.begin(), m_enemies.end(),
+            [](const unique_ptr<Enemy>& enemy) { return enemy->IsDead(); }),
+        m_enemies.end()
+    );
+
     // Debug output for orientation mode
     static bool lastHorizontalMode = false;
     bool currentHorizontalMode = m_player->IsHorizontalMode();
@@ -135,6 +154,11 @@ void Game::Render() {
 
     // Draw speed lines behind the player when sprinting
     m_renderer->DrawSpeedLines(m_player->GetPosition(), m_player->IsFacingRight(), m_player->IsSprinting());
+
+    // Draw enemies
+    for (const auto& enemy : m_enemies) {
+        enemy->Render(m_renderer.get());
+    }
 
     m_renderer->DrawStickFigure(m_player->GetBody());
 

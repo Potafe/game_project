@@ -28,6 +28,9 @@ set(SOURCES
     src/world/DemonWorld.cpp
     src/world/HumanWorld.cpp
     src/world/InsectWorld.cpp
+    src/Enemy.cpp
+    src/Projectile.cpp
+    src/enemies/Animal.cpp
 )
 
 set(HEADERS
@@ -48,6 +51,9 @@ set(HEADERS
     include/world/DemonWorld.h
     include/world/HumanWorld.h
     include/world/InsectWorld.h
+    include/Enemy.h
+    include/Projectile.h
+    include/enemies/Animal.h
 )
 
 # Create executable

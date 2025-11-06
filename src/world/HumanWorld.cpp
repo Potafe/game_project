@@ -5,6 +5,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+using namespace std;
+
+
 HumanWorld::HumanWorld()
     : m_amplitude(60.0f)
     , m_frequency(0.05f)
@@ -21,7 +24,7 @@ void HumanWorld::GenerateWaves(float waveTime) {
     // No waves - empty quadrant
 }
 
-const std::vector<Vector2>& HumanWorld::GetWavePoints() const {
+const vector<Vector2>& HumanWorld::GetWavePoints() const {
     return m_wavePoints;
 }
 

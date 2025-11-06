@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+using namespace std;
+
 class StickFigureBody {
 public:
     StickFigureBody();
@@ -21,11 +23,11 @@ public:
     const BodyPart& GetRightLeg() const { return m_rightLeg; }
 
     // Get all body parts for easy iteration
-    const std::vector<BodyPart*> GetAllParts() const;
+    const vector<BodyPart*> GetAllParts() const;
     
     // Get limb drawing order and visibility
     bool IsLimbInFront(BodyPartType limbType, float animationPhase) const;
-    std::vector<BodyPart*> GetDrawingOrder(float animationPhase) const;
+    vector<BodyPart*> GetDrawingOrder(float animationPhase) const;
     float GetAnimationPhase() const { return m_currentAnimationPhase; }
 
     // Physics simulation
